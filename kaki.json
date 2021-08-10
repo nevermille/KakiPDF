@@ -1,0 +1,603 @@
+{
+    "$schema": "https://json-schema.org/draft-07/schema#",
+    "title": "KakiPDF File Schema Description",
+    "description": "The comple specification to make PDF with KakiPDF",
+    "type": "object",
+    "properties": {
+        "document": {
+            "description": "The document parameters",
+            "type": "object",
+            "properties": {
+                "unit": {
+                    "description": "The measures unit used in commands",
+                    "type": "string",
+                    "enum": [
+                        "mm",
+                        "cm",
+                        "in",
+                        "px"
+                    ],
+                    "default": "mm"
+                },
+                "pageSize": {
+                    "description": "The custom size of the page, if you need a standard size, use pageStandard instead",
+                    "type": "object",
+                    "properties": {
+                        "width": {
+                            "description": "The page width",
+                            "type": "number"
+                        },
+                        "height": {
+                            "description": "The page height",
+                            "type": "number"
+                        }
+                    },
+                    "required": [
+                        "width",
+                        "height"
+                    ]
+                },
+                "pageStandard": {
+                    "description": "A standard page size",
+                    "type": "string",
+                    "enum": [
+                        "A4",
+                        "Letter"
+                    ],
+                    "default": "A4"
+                },
+                "margins": {
+                    "description": "The margins size",
+                    "type": "object",
+                    "properties": {
+                        "top": {
+                            "description": "The top margin size",
+                            "type": "number",
+                            "minimum": 0,
+                            "default": 0
+                        },
+                        "bottom": {
+                            "description": "The bottom margin size",
+                            "type": "number",
+                            "minimum": 0,
+                            "default": 0
+                        },
+                        "left": {
+                            "description": "The left margin size",
+                            "type": "number",
+                            "minimum": 0,
+                            "default": 0
+                        },
+                        "right": {
+                            "description": "The right margin size",
+                            "type": "number",
+                            "minimum": 0,
+                            "default": 0
+                        }
+                    }
+                },
+                "orientation": {
+                    "description": "The pages orientation",
+                    "type": "string",
+                    "enum": [
+                        "portrait",
+                        "landscape"
+                    ],
+                    "default": "portrait"
+                },
+                "version": {
+                    "description": "The PDF version",
+                    "type": "string",
+                    "enum": [
+                        "1.4",
+                        "A-1b",
+                        "1.6"
+                    ],
+                    "default": "1.4"
+                },
+                "resolution": {
+                    "description": "The PDF resolution in DPI",
+                    "type": "number",
+                    "minimum": 0,
+                    "default": 300
+                },
+                "title": {
+                    "description": "The document title",
+                    "type": "string"
+                }
+            }
+        },
+        "steps": {
+            "description": "The steps to build the PDF document",
+            "type": "array",
+            "items": {
+                "anyOf": [
+                    {
+                        "$ref": "#/definitions/arcStep"
+                    },
+                    {
+                        "$ref": "#/definitions/chordStep"
+                    },
+                    {
+                        "$ref": "#/definitions/convexPolygonStep"
+                    },
+                    {
+                        "$ref": "#/definitions/ellipseStep"
+                    },
+                    {
+                        "$ref": "#/definitions/imageStep"
+                    },
+                    {
+                        "$ref": "#/definitions/lineStep"
+                    },
+                    {
+                        "$ref": "#/definitions/pieStep"
+                    },
+                    {
+                        "$ref": "#/definitions/pointStep"
+                    },
+                    {
+                        "$ref": "#/definitions/polygonStep"
+                    }
+                ]
+            }
+        }
+    },
+    "required": [
+        "steps"
+    ],
+    "definitions": {
+        "arcStep": {
+            "description": "Draws an arc",
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/rectanglePositioning"
+                },
+                {
+                    "$ref": "#/definitions/arcAngling"
+                },
+                {
+                    "properties": {
+                        "name": {
+                            "description": "The name of the step",
+                            "const": "drawArc"
+                        }
+                    },
+                    "required": [
+                        "name"
+                    ]
+                }
+            ]
+        },
+        "chordStep": {
+            "description": "Draws a chord",
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/rectanglePositioning"
+                },
+                {
+                    "$ref": "#/definitions/arcAngling"
+                },
+                {
+                    "properties": {
+                        "name": {
+                            "description": "The name of the step",
+                            "const": "drawChord"
+                        }
+                    },
+                    "required": [
+                        "name"
+                    ]
+                }
+            ]
+        },
+        "convexPolygonStep": {
+            "description": "Draws a convex polygon",
+            "type": "object",
+            "allOf": [
+                {
+                    "properties": {
+                        "name": {
+                            "description": "The name of the step",
+                            "const": "drawConvexPolygon"
+                        },
+                        "points": {
+                            "description": "The points list",
+                            "type": "array",
+                            "items": {
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/definitions/pointCoordinates"
+                                    }
+                                ]
+                            },
+                            "minItems": 2
+                        }
+                    },
+                    "required": [
+                        "name",
+                        "points"
+                    ]
+                }
+            ]
+        },
+        "ellipseStep": {
+            "description": "Draws an ellipse",
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/rectanglePositioning"
+                },
+                {
+                    "properties": {
+                        "name": {
+                            "description": "The name of the step",
+                            "const": "drawEllipse"
+                        }
+                    },
+                    "required": [
+                        "name"
+                    ]
+                }
+            ]
+        },
+        "imageStep": {
+            "description": "Draws an image",
+            "type": "object",
+            "allOf": [
+                {
+                    "properties": {
+                        "target": {
+                            "description": "The target positionning",
+                            "oneOf": [
+                                {
+                                    "$ref": "#/definitions/rectanglePositioning"
+                                },
+                                {
+                                    "$ref": "#/definitions/pointCoordinates"
+                                }
+                            ]
+                        },
+                        "source": {
+                            "description": "The source image portion to draw",
+                            "$ref": "#/definitions/rectanglePositioning"
+                        },
+                        "file": {
+                            "description": "The image file",
+                            "type": "string"
+                        },
+                        "conversionFlags": {
+                            "$ref": "#/definitions/imageConversionFlags"
+                        },
+                        "name": {
+                            "description": "The name of the step",
+                            "const": "drawImage"
+                        }
+                    },
+                    "required": [
+                        "target",
+                        "file",
+                        "name"
+                    ]
+                }
+            ]
+        },
+        "lineStep": {
+            "description": "Draws a line",
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/rectanglePositioning"
+                },
+                {
+                    "properties": {
+                        "name": {
+                            "description": "The name of the step",
+                            "const": "drawLine"
+                        }
+                    },
+                    "required": [
+                        "name"
+                    ]
+                }
+            ]
+        },
+        "pieStep": {
+            "description": "Draws a pie",
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/rectanglePositioning"
+                },
+                {
+                    "$ref": "#/definitions/arcAngling"
+                },
+                {
+                    "properties": {
+                        "name": {
+                            "description": "The name of the step",
+                            "const": "drawPie"
+                        }
+                    },
+                    "required": [
+                        "name"
+                    ]
+                }
+            ]
+        },
+        "pointStep": {
+            "description": "Draws a point",
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/pointCoordinates"
+                },
+                {
+                    "properties": {
+                        "name": {
+                            "description": "The name of the step",
+                            "const": "drawPoint"
+                        }
+                    },
+                    "required": [
+                        "name"
+                    ]
+                }
+            ]
+        },
+        "polygonStep": {
+            "description": "Draws a polygon",
+            "type": "object",
+            "allOf": [
+                {
+                    "properties": {
+                        "name": {
+                            "description": "The name of the step",
+                            "const": "drawPoint"
+                        },
+                        "points": {
+                            "description": "The points list",
+                            "type": "array",
+                            "items": {
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/definitions/pointCoordinates"
+                                    }
+                                ]
+                            },
+                            "minItems": 2
+                        },
+                        "fillRule": {
+                            "$ref": "#/definitions/fillRule"
+                        }
+                    },
+                    "required": [
+                        "name",
+                        "points"
+                    ]
+                }
+            ]
+        },
+        "polylineStep": {
+            "description": "Draws a polyline",
+            "type": "object",
+            "allOf": [
+                {
+                    "properties": {
+                        "name": {
+                            "description": "The name of the step",
+                            "const": "drawPolyline"
+                        },
+                        "points": {
+                            "description": "The points list",
+                            "type": "array",
+                            "items": {
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/definitions/pointCoordinates"
+                                    }
+                                ]
+                            },
+                            "minItems": 2
+                        }
+                    },
+                    "required": [
+                        "name",
+                        "points"
+                    ]
+                }
+            ]
+        },
+        "rectStep": {
+            "description": "Draws a rectangle",
+            "type": "object",
+            "allOf": [
+                {
+                    "properties": {
+                        "name": {
+                            "description": "The name of the step",
+                            "const": "drawRect"
+                        }
+                    },
+                    "required": [
+                        "name"
+                    ]
+                },
+                {
+                    "$ref": "#/definitions/rectanglePositioning"
+                }
+            ]
+        },
+        "roundedRectStep": {
+            "description": "Draws a rounded rectangle",
+            "type": "object",
+            "allOf": [
+                {
+                    "properties": {
+                        "name": {
+                            "description": "The name of the step",
+                            "const": "drawRect"
+                        },
+                        "xRadius": {
+                            "description": "The x radius of the elipses",
+                            "type": "number"
+                        },
+                        "yRadius": {
+                            "description": "The y radius of the elipses",
+                            "type": "number"
+                        }
+                    },
+                    "required": [
+                        "name"
+                    ]
+                },
+                {
+                    "$ref": "#/definitions/rectanglePositioning"
+                }
+            ]
+        },
+        "textStep": {
+            "description": "Draws a text",
+            "type": "object",
+            "allOf": [
+                {
+                    "properties": {
+                        "name": {
+                            "description": "The name of the step",
+                            "const": "drawText"
+                        },
+                        "text": {
+                            "description": "The text",
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "name"
+                    ]
+                },
+                {
+                    "$ref": "#/definitions/rectanglePositioning"
+                }
+            ]
+        },
+        "rectanglePositioning": {
+            "description": "Adds coordinates properties for a rectangle",
+            "type": "object",
+            "properties": {
+                "x1": {
+                    "description": "The top left corner x coordinate",
+                    "type": "number"
+                },
+                "y1": {
+                    "description": "The top left corner y cooddinate",
+                    "type": "number"
+                },
+                "x2": {
+                    "description": "The bottom right corner x coordinate",
+                    "type": "number"
+                },
+                "y2": {
+                    "description": "The bottom right corner y coordinate",
+                    "type": "number"
+                }
+            },
+            "required": [
+                "x1",
+                "x2",
+                "y1",
+                "y2"
+            ]
+        },
+        "arcAngling": {
+            "description": "Adds angles to make arc figures",
+            "type": "object",
+            "properties": {
+                "startAngle": {
+                    "description": "The start angle (in degrees)",
+                    "type": "number"
+                },
+                "spanAngle": {
+                    "description": "The span angle (in degrees)",
+                    "type": "number"
+                }
+            },
+            "required": [
+                "startAngle",
+                "spanAngle"
+            ]
+        },
+        "pointCoordinates": {
+            "description": "The coordinates of a point",
+            "type": "object",
+            "properties": {
+                "x": {
+                    "description": "The x coodinate of the point",
+                    "type": "number",
+                    "minimum": 0
+                },
+                "y": {
+                    "description": "The y coodinate of the point",
+                    "type": "number",
+                    "minimum": 0
+                }
+            },
+            "required": [
+                "x",
+                "y"
+            ]
+        },
+        "imageConversionFlags": {
+            "description": "The image conversion flags (https://doc.qt.io/qt-5/qt.html#ImageConversionFlag-enum)",
+            "type": "object",
+            "properties": {
+                "colorMono": {
+                    "description": "Color/Mono Preference",
+                    "enum": [
+                        "AutoColor",
+                        "ColorOnly",
+                        "MonoOnly"
+                    ],
+                    "default": "AutoColor"
+                },
+                "dithering": {
+                    "description": "Dithering mode preference",
+                    "enum": [
+                        "DiffuseDither",
+                        "OrderedDither",
+                        "ThresholdDither"
+                    ],
+                    "default": "DiffuseDither"
+                },
+                "alphaDithering": {
+                    "description": "Dithering mode preference for 1-bit alpha masks",
+                    "enum": [
+                        "ThresholdAlphaDither",
+                        "OrderedAlphaDither",
+                        "DiffuseAlphaDither"
+                    ],
+                    "default": "ThresholdAlphaDither"
+                },
+                "colorMatching": {
+                    "description": "Color matching versus dithering preference",
+                    "enum": [
+                        "PreferDither",
+                        "AvoidDither",
+                        "AutoDither",
+                        "NoOpaqueDetection",
+                        "NoFormatConversion"
+                    ],
+                    "default": "AutoDither"
+                }
+            }
+        },
+        "fillRule": {
+            "description": "Specifies which method should be used to fill the paths and polygons (https://doc.qt.io/qt-5/qt.html#FillRule-enum)",
+            "enum": [
+                "OddEvenFill",
+                "WindingFill"
+            ]
+        }
+    }
+}
